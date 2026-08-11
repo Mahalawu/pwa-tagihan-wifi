@@ -1,0 +1,15 @@
+{
+  "name": "Aplikasi Tagihan WIFI",
+  "short_name": "TagihanWIFI",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#fffbeb",
+  "theme_color": "#dd6b20",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/93/93158.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

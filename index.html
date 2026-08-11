@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Tagihan WIFI</title>
+    
+    <!-- ===== CSS EXTERNAL ===== -->
+    <link rel="stylesheet" href="style-kuning.css">
+    
+    <!-- ===== BOOTSTRAP & FONTS ===== -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- ===== CHART.JS ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- ===== LIBRARY UNTUK CETAK PDF MOBILE ===== -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link rel="manifest" href="manifest.json">
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js')
+            .then(reg => console.log('Service Worker PWA terdaftar!'))
+            .catch(err => console.error('Gagal daftarkan SW:', err));
+        });
+      }
+    </script>
+</head>
+<body>
+
+    <!-- ===== HERO SECTION ===== -->
+    <div class="hero-section text-center mb-4 no-print">
+        <div class="container">
+            <i class="fa-solid fa-wifi fa-2x text-info mb-2"></i>
+            <h3 class="fw-bold m-0">PT. Wifian Solution</h3>
+            <p class="text-white-50 small mb-0">Site Ngrendeng (Sub. Ketanggung)</p>
+            <p id="hero-quote" class="text-white/85 text-sm font-medium leading-relaxed mb-0">
+                <span class="text-amber-400">“</span>
+                <i>Your quotes today...</i>
+                <span class="text-amber-400">”</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- ===== NAVIGASI ===== -->
+    <div class="container px-3 mb-5 no-print">
+        <div class="row g-2 mb-4 justify-content-center">
+            <div class="col-4"><button id="btn-produk" class="nav-btn active w-100" onclick="switchTab('produk')"><i class="fa-solid fa-layer-group me-1"></i>Paket</button></div>
+            <div class="col-4"><button id="btn-login" class="nav-btn w-100" onclick="switchTab('login-pelanggan')"><i class="fa-solid fa-user me-1"></i>Client</button></div>
+            <div class="col-4"><button id="btn-admin" class="nav-btn w-100" onclick="switchTab('login-admin')"><i class="fa-solid fa-user-shield me-1"></i>Admin</button></div>
+        </div>
+
+        <hr class="text-muted opacity-25 my-4">
+
+        <!-- ===== SECTION PRODUK ===== -->
+        <div id="section-produk" class="app-section">
+            <div id="container-paket" class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3">
+                <div class="text-center w-100 py-5"><div class="spinner-border text-primary"></div></div>
+            </div>
+        </div>
+
+        <!-- ===== SECTION LOGIN PELANGGAN ===== -->
+        <div id="section-login-pelanggan" class="app-section d-none mx-auto" style="max-width: 400px;">
+            <div class="card p-4 shadow border-0" style="border-radius: 20px;">
+                <h5 class="fw-bold text-center mb-3">Login Pelanggan</h5>
+                <div class="mb-3"><label class="form-label small fw-medium">ID Pelanggan</label><input type="text" id="login-id" class="form-control" placeholder="WF-0001"></div>
+                <div class="mb-4"><label class="form-label small fw-medium">No. HP Terdaftar</label><input type="text" id="login-hp" class="form-control" placeholder="08xxxx"></div>
+                <button class="btn btn-warning w-100 py-2.5 fw-bold text-white" style="border-radius: 10px; background-color: #dd6b20; border:none;" onclick="prosesLoginPelanggan()"><i class="fa-solid fa-lock me-2"></i>Masuk</button>
+                <div id="login-error" class="text-danger mt-2 small text-center fw-medium"></div>
+            </div>
+        </div>
+
+        <!-- ===== SECTION LOGIN ADMIN ===== -->
+<div id="section-login-admin" class="app-section d-none mx-auto" style="max-width: 400px;">
+    <div class="card p-4 shadow border-0" style="border-radius: 20px; border-top: 5px solid #dd6b20;">
+        <h5 class="fw-bold text-center text-dark mb-3">
+            <i class="fa-solid fa-lock me-2 text-warning"></i>Login Otorisasi
+        </h5>
+        <div class="mb-3">
+            <label class="form-label small fw-medium">Username</label>
+            <input type="text" id="admin-user" class="form-control">
+        </div>
+        <div class="mb-4">
+            <label class="form-label small fw-medium">Password</label>
+            <input type="password" id="admin-pass" class="form-control">
+        </div>
+        <button class="btn btn-warning w-100 py-2.5 fw-bold text-white" 
+                style="border-radius: 10px; background-color: #dd6b20; border:none;" 
+                onclick="prosesLoginAdmin()">
+            <i class="fa-solid fa-lock me-2"></i>Masuk
+        </button>
+        <div id="admin-login-error" class="text-danger mt-2 small text-center fw-medium"></div>
+    </div>
+</div>
+
+        <!-- ===== DASHBOARD PELANGGAN ===== -->
+        <div id="section-dashboard" class="app-section d-none mx-auto" style="max-width: 500px;">
+            <div class="card p-4 shadow border-0" style="border-radius: 20px;">
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                    <h6 class="fw-bold m-0"><i class="fa-solid fa-user-circle me-2 text-primary"></i>Data Akun Pelanggan</h6>
+                    <div id="dash-status"></div>
+                </div>
+                <div class="info-row d-flex justify-content-between"><span><i class="fa-solid fa-user me-2 text-secondary"></i>Nama:</span><span class="fw-bold" id="dash-nama"></span></div>
+                <div class="info-row d-flex justify-content-between"><span><i class="fa-solid fa-wifi me-2 text-secondary"></i>Paket:</span><span class="fw-bold text-info-emphasis" id="dash-paket"></span></div>
+                <div class="info-row d-flex justify-content-between"><span><i class="fa-solid fa-money-bill-wave me-2 text-secondary"></i>Biaya:</span><span class="fw-bold text-success" id="dash-harga"></span></div>
+                <div class="info-row d-flex justify-content-between" style="border-left-color: #6c757d; background: #f8f9fa;">
+                    <span><i class="fa-regular fa-calendar me-2 text-secondary"></i>Jatuh Tempo:</span>
+                    <span class="fw-bold text-secondary" id="dash-tempo" style="font-size: 0.9rem;"></span>
+                </div>
+                <div class="info-row d-flex justify-content-between" style="border-left-color: #dc3545; background: #fff5f5;">
+                    <span><i class="fa-solid fa-exclamation-triangle me-2 text-danger"></i>Tagihan:</span>
+                    <span class="fw-bold text-danger" id="dash-tunggakan">Rp 0</span>
+                </div>
+
+                <!-- Informasi Pembayaran -->
+                <div class="mt-3 p-3 bg-light rounded-3 border" style="border-left: 4px solid #0d6efd;">
+                    <h6 class="fw-bold text-primary mb-2"><i class="fa-solid fa-circle-info me-2"></i>Informasi Pembayaran</h6>
+                    <div class="small text-muted mb-2 p-2 bg-white rounded" style="border-left: 3px solid #0d6efd;">
+                        <p class="mb-0 fw-bold text-dark"><i class="fa-solid fa-university me-2 text-primary"></i>Transfer Bank</p>
+                        <p class="mb-0" style="font-size: 12px;">
+                            <strong>Mandiri</strong> : 1710002011743<br>
+                            <strong>BPD Jatim</strong> : 0442053456<br>
+                            <strong>Sea Bank</strong> : 901392247663
+                        </p>
+                        <p class="mb-0" style="font-size: 11px; color: #6c757d;">a.n. Antonius Leo Agung Eka Cahya</p>
+                    </div>
+                    <div class="small text-muted mb-2 p-2 bg-white rounded" style="border-left: 3px solid #28a745;">
+                        <p class="mb-0 fw-bold text-dark"><i class="fa-solid fa-coins me-2 text-success"></i>Pembayaran Tunai</p>
+                        <p class="mb-0" style="font-size: 12px;">Datang langsung ke 🏡 <strong>Ketanggung</strong></p>
+                    </div>
+                    <hr class="my-2">
+                    <p class="small text-muted mb-0"><i class="fa-regular fa-clock me-2 text-secondary"></i><strong>Jam Operasional:</strong> Senin - Sabtu, 08.00 - 17.00 WIB</p>
+                    <p class="small text-muted mb-0"><i class="fa-regular fa-envelope me-2 text-secondary"></i><strong>Kontak:</strong> 0857-5515-9817 (WA/Telp)</p>
+                </div>
+
+                <button class="btn btn-secondary w-100 mt-3" style="border-radius:10px;" onclick="logoutPelanggan()">
+                    <i class="fa-solid fa-sign-out-alt me-2"></i>Keluar
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== PANEL ADMIN ===== -->
+        <div id="section-panel-admin" class="app-section d-none">
+            <div class="card p-4 shadow border-0" style="border-radius: 20px;">
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center border-bottom pb-3 mb-4">
+                    <div>
+                        <h5 class="fw-bold text-dark m-0">Panel Kontrol Manajemen</h5>
+                        <small class="text-muted">Petugas: <span id="adm-nama-display" class="fw-bold text-primary"></span> (<span id="adm-level-display" class="badge bg-secondary"></span>)</small>
+                    </div>
+                    <button class="btn btn-outline-danger btn-sm mt-2 mt-sm-0" onclick="logoutAdmin()">
+                        <i class="fa-solid fa-power-off me-1"></i>Logout
+                    </button>
+                </div>
+
+                <div class="d-flex gap-2 mb-4 flex-wrap" id="admin-nav-container">
+                <!-- Navigasi akan di-render oleh JavaScript berdasarkan level user -->
+                </div>
+
+                <div id="plg-notif-crud" class="alert d-none small py-2 text-center"></div>
+
+                <!-- DASHBOARD ADMIN -->
+                <div id="konten-dashboard" class="admin-tab-content d-none">
+                    <div class="row g-3">
+                        <div class="col-6 col-md-3"><div class="card text-center border-0 shadow-sm"><div class="card-body"><h6 class="text-muted small">Total Pelanggan</h6><h3 class="fw-bold" id="stat-total-pelanggan">0</h3><small class="text-success"><i class="fa-solid fa-circle-check"></i> <span id="stat-aktif">0</span> Aktif</small></div></div></div>
+                        <div class="col-6 col-md-3"><div class="card text-center border-0 shadow-sm"><div class="card-body"><h6 class="text-muted small">Pendapatan Bulan Ini</h6><h3 class="fw-bold text-success" id="stat-pendapatan-bulan">Rp 0</h3><small class="text-muted"><span id="stat-transaksi-hari">0</span> transaksi hari ini</small></div></div></div>
+                        <div class="col-6 col-md-3"><div class="card text-center border-0 shadow-sm"><div class="card-body"><h6 class="text-muted small">Total Transaksi</h6><h3 class="fw-bold text-primary" id="stat-total-transaksi">0</h3><small class="text-muted">Semua waktu</small></div></div></div>
+                        <div class="col-6 col-md-3"><div class="card text-center border-0 shadow-sm"><div class="card-body"><h6 class="text-muted small">Metode Pembayaran</h6><h5 class="fw-bold" id="stat-metode-populer">-</h5><small class="text-muted">Paling sering digunakan</small></div></div></div>
+                    </div>
+                    <div class="card border-0 shadow-sm mt-3"><div class="card-header bg-transparent"><h6 class="fw-bold m-0"><i class="fa-solid fa-chart-bar me-2 text-primary"></i>Pendapatan 6 Bulan Terakhir</h6></div><div class="card-body"><div class="chart-container"><canvas id="chartPendapatan" height="200"></canvas></div></div></div>
+                    <div class="row mt-3 g-3">
+                        <div class="col-md-6"><div class="card border-0 shadow-sm h-100"><div class="card-header bg-transparent"><h6 class="fw-bold m-0"><i class="fa-solid fa-layer-group me-2 text-info"></i>Distribusi Paket</h6></div><div class="card-body"><div class="chart-container"><canvas id="chartPaket" height="200"></canvas></div></div></div></div>
+                        <div class="col-md-6"><div class="card border-0 shadow-sm h-100"><div class="card-header bg-transparent"><h6 class="fw-bold m-0"><i class="fa-solid fa-wallet me-2 text-warning"></i>Metode Pembayaran</h6></div><div class="card-body"><div class="chart-container"><canvas id="chartMetode" height="200"></canvas></div></div></div></div>
+                    </div>
+                </div>
+
+                <!-- ===== KASIR ===== -->
+<div id="konten-kasir" class="admin-tab-content d-none">
+    <div class="row g-3">
+        <!-- KOLOM KIRI: PENCARIAN PELANGGAN -->
+        <div class="col-md-5">
+            <div class="bg-light p-3 rounded-3 border">
+                <h6 class="fw-bold text-secondary mb-3">
+                    <i class="fa-solid fa-search me-1"></i>1. Cari Data Pelanggan
+                </h6>
+                
+                <!-- Input Pencarian -->
+                <div class="input-group mb-2">
+                    <input type="text" id="kasir-cari-id" class="form-control" placeholder="Masukkan ID atau Nama Pelanggan">
+                    <button class="btn btn-dark" type="button" onclick="prosesCariPelanggan()">
+                        <i class="fa-solid fa-search"></i>
+                    </button>
+                </div>
+                
+                <!-- ===== HASIL PENCARIAN (BARU) ===== -->
+                <div id="kasir-hasil-pencarian" class="mt-2" style="max-height: 300px; overflow-y: auto;">
+                    <!-- Hasil pencarian akan muncul di sini -->
+                </div>
+                
+                <div id="kasir-notif-cari" class="small fw-medium text-danger"></div>
+            </div>
+        </div>
+        
+        <!-- KOLOM KANAN: FORM PEMBAYARAN -->
+        <div class="col-md-7">
+            <div class="p-3 bg-white rounded-3 border">
+                <h6 class="fw-bold text-secondary mb-3">
+                    <i class="fa-solid fa-cash-register me-1"></i>2. Form Otorisasi Pembayaran
+                </h6>
+                
+                <!-- ID Pelanggan (hidden/readonly) -->
+                <div class="mb-2">
+                    <label class="form-label small m-0 fw-medium">ID Pelanggan</label>
+                    <input type="text" id="kasir-id-plg" class="form-control form-control-sm" readonly>
+                </div>
+                
+                <div class="mb-2">
+                    <label class="form-label small m-0 fw-medium">Nama Pelanggan</label>
+                    <input type="text" id="kasir-nama" class="form-control form-control-sm" readonly>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small m-0 fw-medium">Paket Langganan</label>
+                    <input type="text" id="kasir-paket" class="form-control form-control-sm" readonly>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small m-0 fw-medium">Periode Tagihan / Bulan Bayar</label>
+                    <input type="month" id="kasir-periode" class="form-control form-control-sm" placeholder="Pilih Bulan">
+                    <small class="text-muted" style="font-size: 11px;">
+                    *Pilih periode pembayaran (misal jika melunasi tunggakan bulan lalu).
+                    </small>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small m-0 fw-medium">Nominal Tagihan (Rp)</label>
+                    <input type="number" id="kasir-jumlah" class="form-control form-control-sm">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small m-0 fw-medium">Metode Pembayaran</label>
+                    <select id="kasir-metode" class="form-select form-select-sm">
+                        <option value="Tunai">Tunai / Cash</option>
+                        <option value="Transfer Bank">Transfer Bank</option>
+                        <option value="QRIS">QRIS / Dompet Digital</option>
+                    </select>
+                </div>
+                <button class="btn btn-simpan btn-sm w-100 py-2 fw-bold" id="btn-simpan-tx" onclick="prosesSimpanTransaksi()" disabled>
+                    <i class="fa-solid fa-check-circle me-2"></i>Simpan & Bayar Sekarang
+                </button>
+                <div id="kasir-notif-simpan" class="text-center mt-2 fw-bold small"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+                <!-- ===== RIWAYAT / DATA TRANSAKSI ===== -->
+<div id="konten-riwayat" class="admin-tab-content d-none">
+    
+    <!-- ===== JUDUL ===== -->
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <h6 class="fw-bold m-0 text-secondary"><i class="fa-solid fa-clock-rotate-left me-2"></i>Data Transaksi</h6>
+        <span class="badge bg-primary" id="totalTransaksiLabel">Total: 0 transaksi</span>
+    </div>
+
+    <!-- ===== SEARCH, FILTER, SORT, LIMIT ===== -->
+    <div class="row g-2 mb-3 align-items-center">
+        <div class="col-md-4">
+            <div class="input-group input-group-sm">
+                <span class="input-group-text bg-white"><i class="fa-solid fa-search text-secondary"></i></span>
+                <input type="text" id="searchTransaksi" class="form-control form-control-sm" placeholder="Cari ID, pelanggan, paket..." onkeyup="renderTabelTransaksi()">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <select id="filterMetodeTransaksi" class="form-select form-select-sm" onchange="renderTabelTransaksi()">
+                <option value="semua">📋 Semua Metode</option>
+                <option value="Tunai">💵 Tunai</option>
+                <option value="Transfer Bank">🏦 Transfer</option>
+                <option value="QRIS">📱 QRIS</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select id="sortTransaksi" class="form-select form-select-sm" onchange="renderTabelTransaksi()">
+                <option value="tanggal_desc">📅 Tanggal (Terbaru)</option>    
+                <option value="tanggal">📅 Tanggal (Terlama)</option>            
+                <option value="idTx">🔤 ID Transaksi (A-Z)</option>
+                <option value="nama">📝 Nama (A-Z)</option>
+                <option value="jumlah_desc">💰 Jumlah (Terbesar)</option>
+                <option value="jumlah">💰 Jumlah (Terkecil)</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select id="limitTransaksi" class="form-select form-select-sm" onchange="renderTabelTransaksi()">
+                <option value="10" selected>10 per halaman</option>
+                <option value="25">25 per halaman</option>
+                <option value="50">50 per halaman</option>
+                <option value="100">100 per halaman</option>
+                <option value="9999">Semua</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- ===== TABEL ===== -->
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle small border text-nowrap">
+            <thead class="table-dark">
+                <tr>
+                    <th style="cursor: pointer;" onclick="sortTransaksi('idTx')">ID Transaksi <i class="fa-solid fa-sort text-muted"></i></th>
+                    <th style="cursor: pointer;" onclick="sortTransaksi('idPlg')">ID Client <i class="fa-solid fa-sort text-muted"></i></th>
+                    <th style="cursor: pointer;" onclick="sortTransaksi('nama')">Nama <i class="fa-solid fa-sort text-muted"></i></th>
+                    <th style="cursor: pointer;" onclick="sortTransaksi('paket')">Paket <i class="fa-solid fa-sort text-muted"></i></th>
+                    <th style="cursor: pointer;" onclick="sortTransaksi('tanggal')">Tanggal <i class="fa-solid fa-sort text-muted"></i></th>
+                    <th style="cursor: pointer;" onclick="sortTransaksi('jumlah')">Jumlah <i class="fa-solid fa-sort text-muted"></i></th>
+                    <th style="cursor: pointer;" onclick="sortTransaksi('bulan')">Bulan <i class="fa-solid fa-sort text-muted"></i></th>
+                    <th style="cursor: pointer;" onclick="sortTransaksi('metode')">Metode <i class="fa-solid fa-sort text-muted"></i></th>
+                    <th>Petugas</th>
+                    <th class="text-center">Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="tabel-body-riwayat">
+                <tr><td colspan="10" class="text-center py-3">Memuat data...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ===== PAGINATION ===== -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mt-3">
+        <div class="small text-muted" id="infoTransaksi">Menampilkan 0 - 0 dari 0 data</div>
+        <nav aria-label="Page navigation">
+            <ul class="pagination pagination-sm mb-0" id="paginationTransaksi"></ul>
+        </nav>
+    </div>
+</div>
+
+<!-- KELOLA PELANGGAN -->
+<div id="konten-pelanggan" class="admin-tab-content d-none">
+    
+    <!-- 1. HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold m-0 text-secondary">
+            <i class="fa-solid fa-database me-2"></i>Database Pelanggan
+        </h6>
+        <button class="btn btn-primary btn-sm fw-bold" id="btn-tambah-pelanggan" onclick="bukaModalPelanggan(false)">
+            <i class="fa-solid fa-user-plus me-1"></i>Tambah Pelanggan
+        </button>
+    </div>
+
+    <!-- 2. FILTER, SEARCH, PAGINATION CONTROLS -->
+    <div class="row g-2 mb-3 align-items-center">
+        <div class="col-md-4">
+            <div class="input-group input-group-sm">
+                <span class="input-group-text bg-white"><i class="fa-solid fa-search text-secondary"></i></span>
+                <input type="text" id="searchPelanggan" class="form-control form-control-sm" placeholder="Cari nama, ID, no HP..." onkeyup="renderTabelPelanggan()">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <select id="filterStatusPelanggan" class="form-select form-select-sm" onchange="renderTabelPelanggan()">
+                <option value="semua">📋 Semua Status</option>
+                <option value="Aktif">✅ Aktif</option>
+                <option value="Isolir">⛔ Isolir</option>
+                <option value="Non-Aktif">❌ Non-Aktif</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select id="sortPelanggan" class="form-select form-select-sm" onchange="renderTabelPelanggan()">
+                <option value="id">🔤 ID (A-Z)</option>
+                <option value="id_desc">🔤 ID (Z-A)</option>
+                <option value="nama">📝 Nama (A-Z)</option>
+                <option value="nama_desc">📝 Nama (Z-A)</option>
+                <option value="paket">📶 Paket (A-Z)</option>
+                <option value="status">🏷️ Status (A-Z)</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select id="limitPelanggan" class="form-select form-select-sm" onchange="renderTabelPelanggan()">
+                <option value="10" selected>10 per halaman</option>
+                <option value="25">25 per halaman</option>
+                <option value="50">50 per halaman</option>
+                <option value="100">100 per halaman</option>
+                <option value="9999">Semua</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 3. TABEL -->
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle small border text-nowrap">
+            <thead class="table-secondary">
+                <tr>
+                    <th style="cursor: pointer;" onclick="sortTable('id')">ID Client <i class="fa-solid fa-sort text-muted"></i></th>
+                    <th style="cursor: pointer;" onclick="sortTable('nama')">Nama Pelanggan <i class="fa-solid fa-sort text-muted"></i></th>
+                    <th>Alamat</th>
+                    <th>No HP</th>
+                    <th style="cursor: pointer;" onclick="sortTable('paket')">Paket <i class="fa-solid fa-sort text-muted"></i></th>
+                    <th>Harga Tarif</th>
+                    <th>Jatuh Tempo</th>
+                    <th style="cursor: pointer;" onclick="sortTable('status')">Status <i class="fa-solid fa-sort text-muted"></i></th>
+                    <th class="text-center">Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="tabel-body-pelanggan">
+                <tr><td colspan="9" class="text-center py-3">Memuat data...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 4. PAGINATION FOOTER -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mt-3">
+        <div class="small text-muted" id="infoPelanggan">Menampilkan 0 - 0 dari 0 data</div>
+        <nav aria-label="Page navigation">
+            <ul class="pagination pagination-sm mb-0" id="paginationPelanggan"></ul>
+        </nav>
+    </div>
+
+</div>
+<!-- ===== AKHIR KONTEN PELANGGAN ===== -->
+
+<!-- ===== KELOLA USER (HANYA UNTUK SUPERADMIN) ===== -->
+<div id="konten-user" class="admin-tab-content d-none">
+    
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold m-0 text-secondary">
+            <i class="fa-solid fa-user-gear me-2"></i>Kelola User Admin
+        </h6>
+        <button class="btn btn-primary btn-sm fw-bold" onclick="bukaModalUser(false)">
+            <i class="fa-solid fa-user-plus me-1"></i>Tambah User
+        </button>
+    </div>
+
+    <!-- NOTIFIKASI -->
+    <div id="user-notif" class="alert d-none small py-2 text-center"></div>
+
+    <!-- TABEL USER -->
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle small border">
+            <thead class="table-secondary">
+                <tr>
+                    <th>Username</th>
+                    <th>Password Hash</th>
+                    <th>Nama Petugas</th>
+                    <th>Level</th>
+                    <th class="text-center">Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="tabel-body-user">
+                <tr><td colspan="5" class="text-center py-3">Memuat data...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ===== LAPORAN KEUANGAN ===== -->
+<div id="konten-laporan" class="admin-tab-content d-none">
+    
+    <!-- FILTER PERIODE -->
+    <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+        <label class="fw-bold small me-1">📅 Periode:</label>
+        <select id="filter-periode" class="form-select form-select-sm" style="width: auto;" onchange="ubahPeriode()">
+            <option value="hari-ini">Hari Ini</option>
+            <option value="minggu-ini">Minggu Ini</option>
+            <option value="bulan-ini">Bulan Ini</option>
+            <option value="3-bulan">3 Bulan Terakhir</option>
+            <option value="6-bulan">6 Bulan Terakhir</option>
+            <option value="semua" selected>Semua Waktu</option>
+        </select>
+        <button class="btn btn-outline-primary btn-sm" onclick="exportCSV()">
+            <i class="fa-solid fa-file-export"></i> Export CSV
+        </button>
+    </div>
+    
+    <!-- 1. SUMMARY CARD -->
+    <div class="row g-3 mb-3">
+        <div class="col-6 col-md-4">
+            <div class="card text-center border-0 shadow-sm" style="border-left: 4px solid #28a745;">
+                <div class="card-body">
+                    <h6 class="text-muted small"><i class="fa-solid fa-circle-dollar me-1 text-success"></i>Pendapatan</h6>
+                    <h3 class="fw-bold text-success" id="laporan-pendapatan">Rp 0</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4">
+            <div class="card text-center border-0 shadow-sm" style="border-left: 4px solid #dc3545;">
+                <div class="card-body">
+                    <h6 class="text-muted small"><i class="fa-solid fa-money-bill-transfer me-1 text-danger"></i>Pengeluaran</h6>
+                    <h3 class="fw-bold text-danger" id="laporan-pengeluaran">Rp 0</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-4">
+            <div class="card text-center border-0 shadow-sm" style="border-left: 4px solid #0d6efd;">
+                <div class="card-body">
+                    <h6 class="text-muted small"><i class="fa-solid fa-coins me-1 text-primary"></i>Saldo Akhir</h6>
+                    <h3 class="fw-bold text-primary" id="laporan-saldo">Rp 0</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. FORM TAMBAH PENGELUARAN -->
+<div class="card border-0 shadow-sm mb-3" id="form-pengeluaran-container">
+    <div class="card-header bg-transparent">
+        <h6 class="fw-bold m-0"><i class="fa-solid fa-plus-circle me-2 text-danger"></i>Tambah Pengeluaran</h6>
+    </div>
+    <div class="card-body">
+        <form id="form-pengeluaran" class="row g-2">
+            <div class="col-md-3">
+                <label class="form-label small fw-medium">Tanggal</label>
+                <input type="date" id="pengeluaran-tanggal" class="form-control form-control-sm">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-medium">Kategori</label>
+                <select id="pengeluaran-kategori" class="form-select form-select-sm">
+                    <option value="Setoran">Setoran</option>
+                    <option value="Insentif">Insentif</option>
+                    <option value="Operasional">Operasional</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Lainnya">Lainnya</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-medium">Keterangan</label>
+                <input type="text" id="pengeluaran-keterangan" class="form-control form-control-sm" placeholder="Contoh: Bayar Listrik">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-medium">Jumlah (Rp)</label>
+                <input type="number" id="pengeluaran-jumlah" class="form-control form-control-sm" placeholder="500000">
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <!-- ===== TOMBOL SIMPAN - HANYA UNTUK SUPERADMIN ===== -->
+                <button type="button" class="btn btn-simpan btn-sm w-100" 
+                        id="btn-tambah-pengeluaran"
+                        onclick="tambahPengeluaran()" 
+                        title="Simpan Pengeluaran">
+                    <i class="fa-solid fa-save"></i>
+                </button>
+            </div>
+        </form>
+        <div id="pengeluaran-notif" class="small mt-2 fw-medium"></div>
+    </div>
+</div>
+
+    <!-- 3. TABEL DAFTAR PENGELUARAN DENGAN FILTER, SEARCH, SORT, PAGINATION -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-transparent d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h6 class="fw-bold m-0"><i class="fa-solid fa-list me-2 text-secondary"></i>Daftar Pengeluaran</h6>
+            <span class="badge bg-secondary" id="total-pengeluaran-label">Total: Rp 0</span>
+        </div>
+        <div class="card-body">
+            
+            <!-- ===== SEARCH, FILTER, SORT, LIMIT ===== -->
+            <div class="row g-2 mb-3 align-items-center">
+                <div class="col-md-4">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-white"><i class="fa-solid fa-search text-secondary"></i></span>
+                        <input type="text" id="searchPengeluaran" class="form-control form-control-sm" placeholder="Cari keterangan, kategori..." onkeyup="renderTabelPengeluaran()">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select id="filterKategoriPengeluaran" class="form-select form-select-sm" onchange="renderTabelPengeluaran()">
+                        <option value="semua">📋 Semua Kategori</option>
+                        <option value="Setoran">Setoran</option>
+                        <option value="Insentif">Insentif</option>
+                        <option value="Operasional">Operasional</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Lainnya">Lainnya</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select id="sortPengeluaran" class="form-select form-select-sm" onchange="renderTabelPengeluaran()">
+                        <option value="tanggal_desc">📅 Tanggal (Terlama)</option>
+                        <option value="tanggal">📅 Tanggal (Terbaru)</option>
+                        <option value="kategori">📂 Kategori (A-Z)</option>
+                        <option value="kategori_desc">📂 Kategori (Z-A)</option>
+                        <option value="jumlah_desc">💰 Jumlah (Terbesar)</option>
+                        <option value="jumlah">💰 Jumlah (Terkecil)</option>
+                        <option value="keterangan">📝 Keterangan (A-Z)</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select id="limitPengeluaran" class="form-select form-select-sm" onchange="renderTabelPengeluaran()">
+                        <option value="10" selected>10 per halaman</option>
+                        <option value="25">25 per halaman</option>
+                        <option value="50">50 per halaman</option>
+                        <option value="100">100 per halaman</option>
+                        <option value="9999">Semua</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- ===== TABEL ===== -->
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle small border text-nowrap">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="cursor: pointer;" onclick="sortPengeluaranTable('tanggal')">Tanggal <i class="fa-solid fa-sort text-muted"></i></th>
+                            <th style="cursor: pointer;" onclick="sortPengeluaranTable('kategori')">Kategori <i class="fa-solid fa-sort text-muted"></i></th>
+                            <th style="cursor: pointer;" onclick="sortPengeluaranTable('keterangan')">Keterangan <i class="fa-solid fa-sort text-muted"></i></th>
+                            <th style="cursor: pointer;" onclick="sortPengeluaranTable('jumlah')" class="text-end">Jumlah <i class="fa-solid fa-sort text-muted"></i></th>
+                            <th class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-pengeluaran-body">
+                        <tr><td colspan="5" class="text-center py-3">Memuat data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ===== PAGINATION ===== -->
+            <div class="d-flex flex-wrap justify-content-between align-items-center mt-3">
+                <div class="small text-muted" id="infoPengeluaran">Menampilkan 0 - 0 dari 0 data</div>
+                <nav aria-label="Page navigation">
+                    <ul class="pagination pagination-sm mb-0" id="paginationPengeluaran"></ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+    </div>
+
+<!-- ===== INVOICE ===== -->
+<div id="area-cetak-invoice" style="display: none; padding: 10px; background: white; color: black; font-family: 'Courier New', monospace; max-width: 400px; margin: 0 auto;">
+    <div id="invoice-content">
+        <div style="text-align: center; border-bottom: 2px dashed #000; padding-bottom: 10px; margin-bottom: 10px;">
+            <h4 style="margin: 0; font-weight: bold; font-size: 16px;">PT. Wifian Solution</h4>
+            <p style="margin: 2px 0; font-size: 11px;">(Site Ngrendeng - Sub. Ketanggung)</p>
+            <p style="margin: 2px 0; font-size: 10px; color: #555;">Layanan Internet Cepat &amp; Stabil</p>
+        </div>
+        
+        <table style="width: 100%; font-size: 12px; margin-bottom: 10px; border-collapse: collapse;">
+            <tr><td style="padding: 3px 0; width: 40%;">No. Nota</td><td style="padding: 3px 0; width: 60%;">: <span id="p-idtx" style="font-weight: bold;"></span></td></tr>
+            <tr><td style="padding: 3px 0;">Tanggal</td><td style="padding: 3px 0;">: <span id="p-tgl"></span></td></tr>
+            <tr><td style="padding: 3px 0;">ID Pelanggan</td><td style="padding: 3px 0;">: <span id="p-idplg"></span></td></tr>
+            <tr><td style="padding: 3px 0;">Nama</td><td style="padding: 3px 0;">: <span id="p-nama"></span></td></tr>
+            <tr><td style="padding: 3px 0;">Layanan</td><td style="padding: 3px 0;">: <span id="p-paket"></span></td></tr>
+            <tr><td style="padding: 3px 0;">Periode Bayar</td><td style="padding: 3px 0;">: <span id="p-periode" style="font-weight: bold;"></span></td></tr>
+            <tr><td style="padding: 3px 0;">Petugas</td><td style="padding: 3px 0;">: <span id="p-adm"></span></td></tr>
+        </table>
+        
+        <div style="border-top: 2px dashed #000; border-bottom: 2px dashed #000; padding: 10px 0; text-align: right; font-weight: bold; font-size: 16px; margin: 5px 0;">
+            TOTAL BAYAR: Rp <span id="p-total"></span>
+        </div>
+
+        <!-- ===== TAMBAHAN QR CODE ===== -->
+        <div style="text-align: center; margin: 15px 0 5px 0;">
+            <img id="p-qrcode" src="" alt="QR Code Billing" style="width: 80px; height: 80px; border: 1px solid #ccc; padding: 3px; background: #fff;" />
+            <p style="margin: 4px 0 0 0; font-size: 10px; color: #333;">Scan untuk Info Billing & Pembayaran<br>Gunakan ID Pelanggan & No. HP untuk login</p>
+        </div>
+        <!-- ============================ -->
+        
+        <div style="text-align: center; margin-top: 10px; font-size: 10px; color: #555;">
+            <div style="border-top: 1px solid #ddd; padding-top: 8px; margin-top: 5px;">
+                <p style="margin: 2px 0;">Sistem Pembayaran Valid &amp; Sah.</p>
+                <p style="margin: 2px 0; font-weight: bold; color: #000;">Terima Kasih Telah Berlangganan!</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tombol aksi -->
+    <div class="no-print" style="margin-top: 15px; text-align: center;">
+        <button class="btn btn-primary btn-sm" onclick="cetakInvoicePDF()" style="margin: 3px; padding: 8px 20px; border-radius: 8px;">
+            <i class="fa-solid fa-file-pdf me-1"></i> Simpan PDF
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="tutupModeCetak()" style="margin: 3px; padding: 8px 20px; border-radius: 8px;">
+            <i class="fa-solid fa-times me-1"></i> Tutup
+        </button>
+        <button class="btn btn-outline-success btn-sm" onclick="cetakInvoicePrint()" style="margin: 3px; padding: 8px 20px; border-radius: 8px;">
+            <i class="fa-solid fa-print me-1"></i> Cetak
+        </button>
+    </div>
+</div>
+
+<!-- ===== MODAL USER ===== -->
+<div id="modalFormUser" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; padding: 20px; overflow-y: auto;">
+    <div style="max-width: 500px; margin: 50px auto; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+        <div class="modal-header bg-dark text-white py-2.5" style="padding: 15px 20px; border-radius: 20px 20px 0 0; display: flex; justify-content: space-between; align-items: center;">
+            <h6 class="modal-title fw-bold m-0" id="modalUserTitle">Form User</h6>
+            <button type="button" onclick="tutupModalUser()" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer;">&times;</button>
+        </div>
+        <div class="modal-body" style="padding: 20px;">
+            <form id="form-user-crud">
+                <div class="row g-2">
+                    <div class="col-12 mb-2">
+                        <label class="form-label small m-0 fw-semibold">Username *</label>
+                        <input type="text" id="crud-user-username" class="form-control form-control-sm" placeholder="Masukkan username">
+                    </div>
+                    <div class="col-12 mb-2">
+                        <label class="form-label small m-0 fw-semibold">Password *</label>
+                        <input type="text" id="crud-user-password-plain" class="form-control form-control-sm" placeholder="Masukkan password (akan di-hash otomatis)">
+                        <small class="text-muted">Password akan di-hash SHA-256 secara otomatis</small>
+                    </div>
+                    <div class="col-12 mb-2">
+                        <label class="form-label small m-0 fw-semibold">Nama Petugas *</label>
+                        <input type="text" id="crud-user-nama" class="form-control form-control-sm" placeholder="Nama lengkap petugas">
+                    </div>
+                    <div class="col-12 mb-1">
+                        <label class="form-label small m-0 fw-semibold">Level *</label>
+                        <select id="crud-user-level" class="form-select form-select-sm">
+                            <option value="superadmin">Superadmin</option>
+                            <option value="admin">Admin</option>
+                            <option value="kasir" selected>Kasir</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer py-1.5 bg-light" style="padding: 10px 20px; border-radius: 0 0 20px 20px; display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="tutupModalUser()">Batal</button>
+            <button type="button" class="btn btn-primary btn-sm fw-bold" onclick="prosesSimpanUser()"><i class="fa-solid fa-floppy-disk me-1"></i>Simpan User</button>
+        </div>
+    </div>
+</div>
+
+    <!-- ===== MODAL PELANGGAN ===== -->
+    <div id="modalFormPelanggan" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; padding: 20px; overflow-y: auto;">
+        <div style="max-width: 500px; margin: 50px auto; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <div class="modal-header bg-dark text-white py-2.5" style="padding: 15px 20px; border-radius: 20px 20px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                <h6 class="modal-title fw-bold m-0" id="modalPelangganTitle">Form Pelanggan</h6>
+                <button type="button" onclick="tutupModalPelanggan()" style="background: none; border: none; color: white; font-size: 24px; cursor: pointer;">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 20px;">
+                <form id="form-pelanggan-crud">
+                    <div class="row g-2">
+                        <div class="col-6 mb-2"><label class="form-label small m-0 fw-semibold">ID Pelanggan *</label><input type="text" id="crud-plg-id" class="form-control form-control-sm" placeholder="WF-0001"></div>
+                        <div class="col-6 mb-2"><label class="form-label small m-0 fw-semibold">Nama Lengkap *</label><input type="text" id="crud-plg-nama" class="form-control form-control-sm"></div>
+                        <div class="col-6 mb-2"><label class="form-label small m-0 fw-semibold">No HP / WA *</label><input type="text" id="crud-plg-hp" class="form-control form-control-sm" placeholder="08xxx"></div>
+                        <div class="col-6 mb-2"><label class="form-label small m-0 fw-semibold">Pilih Paket Layanan *</label><select id="crud-plg-paket" class="form-select form-select-sm" onchange="autoFillHargaCRUD()"><option value="">Loading...</option></select></div>
+                        <div class="col-6 mb-2"><label class="form-label small m-0 fw-semibold">Harga Bulanan (Rp)</label><input type="number" id="crud-plg-harga" class="form-control form-control-sm" readonly></div>
+                        <div class="col-12 mb-2"><label class="form-label small m-0 fw-semibold">Alamat Rumah</label><textarea id="crud-plg-alamat" class="form-control form-control-sm" rows="2"></textarea></div>
+                        <div class="col-12 mb-1"><label class="form-label small m-0 fw-semibold">Status Koneksi</label><select id="crud-plg-status" class="form-select form-select-sm"><option value="Aktif">Aktif</option><option value="Isolir">Isolir</option><option value="Non-Aktif">Non-Aktif</option></select></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer py-1.5 bg-light" style="padding: 10px 20px; border-radius: 0 0 20px 20px; display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="tutupModalPelanggan()">Batal</button>
+                <button type="button" class="btn btn-primary btn-sm fw-bold" onclick="prosesSimpanCRUDPelanggan()"><i class="fa-solid fa-floppy-disk me-1"></i>Simpan Data</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer mt-5 py-3 no-print">
+        <div class="container text-center">
+            <div class="row">
+                <div class="col-12">
+                    <p class="mb-1" style="font-size: 13px; color: #6c757d;">
+                        <i class="fa-solid fa-wifi me-1 text-info"></i>
+                        <strong style="color: #495057;">PT. Wifian Solution - Net Billing V1.0</strong>
+                    </p>
+                    <p class="mb-1" style="font-size: 12px; color: #6c757d;">
+                        Developed by <strong style="color: #495057;">Mahalawu</strong> 
+                        © 2026 All Rights Reserved.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===== SCRIPTS ===== -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- ===== SCRIPTS ===== -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Load API Client terlebih dahulu -->
+    <script src="api.js"></script>
+    
+    <!-- Load Script Aplikasi -->
+    <script src="script.js"></script>
+</body>
+</html>
