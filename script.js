@@ -21,29 +21,43 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 // ========================================
-// PAKET FUNCTIONS (FIXED)
+// PAKET FUNCTIONS (DEFENSIVE VERSION)
 // ========================================
 async function loadPaketData() {
     console.log("Loading paket data...");
     try {
         const res = await apiCall("getPaketData");
-        
-        // Cek apakah respon berupa object { success: true, data: [...] } atau langsung Array
-        const dataList = Array.isArray(res) ? res : (res.data || res);
+        console.log("Respon mentah getPaketData:", res);
 
-        if (!Array.isArray(dataList)) {
-            throw new Error("Format respon dari server bukan array");
+        // Ekstrak array dari berbagai kemungkinan struktur respon
+        let dataList = [];
+        if (Array.isArray(res)) {
+            dataList = res;
+        } else if (res && Array.isArray(res.data)) {
+            dataList = res.data;
+        } else if (res && typeof res === 'object') {
+            // Jika dikembalikan objek berisi nilai lain
+            dataList = Object.values(res).find(val => Array.isArray(val)) || [];
         }
 
-        console.log("Paket data loaded:", dataList.length);
+        console.log("Paket data berhasil diekstrak:", dataList.length);
+
+        if (dataList.length === 0) {
+            document.getElementById('container-paket').innerHTML = 
+                `<div class="alert alert-warning w-100 text-center">Belum ada data paket di Spreadsheet 'Paket'.</div>`;
+            return;
+        }
+
         let html = '';
         dataList.forEach(p => {
             html += `<div class="col"><div class="card h-100 card-paket"><div class="card-header-custom text-primary"><i class="fa-solid fa-gauge-high me-2 text-info"></i>${p.nama}</div><div class="card-body d-flex flex-column justify-content-between"><div><h2 class="fw-bold my-1 text-dark">${p.kecepatan}</h2><p class="text-muted small bg-light p-1 rounded">Fitur: ${p.fitur}</p></div><h5 class="text-success fw-bold mb-0">Rp ${Number(p.harga).toLocaleString('id-ID')}<span class="fs-6 text-muted fw-normal">/bln</span></h5></div></div></div>`;
         });
         document.getElementById('container-paket').innerHTML = html;
+
     } catch(err) {
         console.error("Error loading paket:", err);
-        document.getElementById('container-paket').innerHTML = `<div class="alert alert-danger w-100 text-center">Gagal memuat paket data: ${err.message}</div>`;
+        document.getElementById('container-paket').innerHTML = 
+            `<div class="alert alert-danger w-100 text-center">Gagal memuat paket data: ${err.message}</div>`;
     }
 }
 
@@ -51,13 +65,16 @@ async function loadPaketDropdown() {
     console.log("Loading paket dropdown...");
     try {
         const res = await apiCall("getPaketData");
+        let paket = [];
         
-        // Cek apakah respon berupa object atau langsung Array
-        const paket = Array.isArray(res) ? res : (res.data || res);
+        if (Array.isArray(res)) {
+            paket = res;
+        } else if (res && Array.isArray(res.data)) {
+            paket = res.data;
+        }
 
-        if (!Array.isArray(paket)) return;
+        if (!Array.isArray(paket) || paket.length === 0) return;
 
-        console.log("Paket dropdown loaded:", paket.length);
         DATA_LIST_PAKET = paket;
         let opsi = '<option value="">-- Pilih Paket --</option>';
         paket.forEach(p => { 
@@ -67,8 +84,7 @@ async function loadPaketDropdown() {
     } catch(err) {
         console.error("Error loading paket dropdown:", err);
     }
-}
-// ========================================
+}// ========================================
 // NAVIGATION FUNCTIONS
 // ========================================
 function switchTab(tabName) {
