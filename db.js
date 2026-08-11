@@ -4,23 +4,25 @@ const DB_NAME = 'WiFiBillingDB';
 const DB_VERSION = 1;
 let dbInstance = null;
 
+// Perbarui fungsi initDB di db.js
 function initDB() {
   return new Promise((resolve, reject) => {
     if (dbInstance) return resolve(dbInstance);
 
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
+    const request = indexedDB.open(DB_NAME, 2); // Naikkan versi ke 2
 
     request.onupgradeneeded = (e) => {
       const db = e.target.result;
       
-      // Database untuk cache pelanggan (login & pencarian kasir offline)
       if (!db.objectStoreNames.contains('pelanggan')) {
         db.createObjectStore('pelanggan', { keyPath: 'id' });
       }
-      
-      // Database untuk antrean transaksi offline
       if (!db.objectStoreNames.contains('offline_transaksi')) {
         db.createObjectStore('offline_transaksi', { keyPath: 'idTemp', autoIncrement: true });
+      }
+      // BARU: Store untuk cache User Admin
+      if (!db.objectStoreNames.contains('user_admin')) {
+        db.createObjectStore('user_admin', { keyPath: 'username' });
       }
     };
 
@@ -31,6 +33,57 @@ function initDB() {
 
     request.onerror = (e) => reject('IndexedDB Error: ' + e.target.error);
   });
+}
+
+// Simpan Cache User Admin ke HP
+async function saveUserAdminToLocal(dataArray) {
+  try {
+    const db = await initDB();
+    const tx = db.transaction('user_admin', 'readwrite');
+    const store = tx.objectStore('user_admin');
+    dataArray.forEach(u => {
+      if (u && u.username) {
+        u.username = u.username.toLowerCase().trim();
+        store.put(u);
+      }
+    });
+  } catch (err) {
+    console.error("Gagal menyimpan cache user admin:", err);
+  }
+}
+
+// Cek Login Admin Offline dari IndexedDB
+async function loginAdminLocal(username, passwordPlain) {
+  try {
+    const db = await initDB();
+    const passwordHash = await sha256(passwordPlain); // Hash input password
+    
+    return new Promise((resolve) => {
+      const tx = db.transaction('user_admin', 'readonly');
+      const store = tx.objectStore('user_admin');
+      const req = store.get(username.toLowerCase().trim());
+
+      req.onsuccess = () => {
+        const u = req.result;
+        if (u && u.passwordHash === passwordHash) {
+          resolve({
+            success: true,
+            data: {
+              username: u.username,
+              nama: u.nama,
+              level: u.level
+            }
+          });
+        } else {
+          resolve({ success: false, message: "Username atau Password salah (Offline Mode)!" });
+        }
+      };
+
+      req.onerror = () => resolve({ success: false, message: "Gagal membaca data admin lokal." });
+    });
+  } catch (err) {
+    return { success: false, message: "IndexedDB Error: " + err.message };
+  }
 }
 
 // Simpan/Cache daftar pelanggan ke IndexedDB saat online
