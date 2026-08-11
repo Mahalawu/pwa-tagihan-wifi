@@ -23,13 +23,24 @@ document.addEventListener("DOMContentLoaded", function() {
 // ========================================
 // PAKET FUNCTIONS
 // ========================================
+// ========================================
+// PAKET FUNCTIONS (FIXED)
+// ========================================
 async function loadPaketData() {
     console.log("Loading paket data...");
     try {
-        const data = await apiCall("getPaketData");
-        console.log("Paket data loaded:", data.length);
+        const res = await apiCall("getPaketData");
+        
+        // Cek apakah respon berupa object { success: true, data: [...] } atau langsung Array
+        const dataList = Array.isArray(res) ? res : (res.data || res);
+
+        if (!Array.isArray(dataList)) {
+            throw new Error("Format respon dari server bukan array");
+        }
+
+        console.log("Paket data loaded:", dataList.length);
         let html = '';
-        data.forEach(p => {
+        dataList.forEach(p => {
             html += `<div class="col"><div class="card h-100 card-paket"><div class="card-header-custom text-primary"><i class="fa-solid fa-gauge-high me-2 text-info"></i>${p.nama}</div><div class="card-body d-flex flex-column justify-content-between"><div><h2 class="fw-bold my-1 text-dark">${p.kecepatan}</h2><p class="text-muted small bg-light p-1 rounded">Fitur: ${p.fitur}</p></div><h5 class="text-success fw-bold mb-0">Rp ${Number(p.harga).toLocaleString('id-ID')}<span class="fs-6 text-muted fw-normal">/bln</span></h5></div></div></div>`;
         });
         document.getElementById('container-paket').innerHTML = html;
@@ -42,7 +53,13 @@ async function loadPaketData() {
 async function loadPaketDropdown() {
     console.log("Loading paket dropdown...");
     try {
-        const paket = await apiCall("getPaketData");
+        const res = await apiCall("getPaketData");
+        
+        // Cek apakah respon berupa object atau langsung Array
+        const paket = Array.isArray(res) ? res : (res.data || res);
+
+        if (!Array.isArray(paket)) return;
+
         console.log("Paket dropdown loaded:", paket.length);
         DATA_LIST_PAKET = paket;
         let opsi = '<option value="">-- Pilih Paket --</option>';
