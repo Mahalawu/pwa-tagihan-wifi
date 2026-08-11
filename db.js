@@ -1,15 +1,14 @@
 // File: db.js - IndexedDB Helper untuk Offline PWA
 
 const DB_NAME = 'WiFiBillingDB';
-const DB_VERSION = 1;
+const DB_VERSION = 2; // Naikkan ke versi 2 untuk mendukung user_admin
 let dbInstance = null;
 
-// Perbarui fungsi initDB di db.js
 function initDB() {
   return new Promise((resolve, reject) => {
     if (dbInstance) return resolve(dbInstance);
 
-    const request = indexedDB.open(DB_NAME, 2); // Naikkan versi ke 2
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
 
     request.onupgradeneeded = (e) => {
       const db = e.target.result;
@@ -20,7 +19,7 @@ function initDB() {
       if (!db.objectStoreNames.contains('offline_transaksi')) {
         db.createObjectStore('offline_transaksi', { keyPath: 'idTemp', autoIncrement: true });
       }
-      // BARU: Store untuk cache User Admin
+      // Store untuk cache User Admin
       if (!db.objectStoreNames.contains('user_admin')) {
         db.createObjectStore('user_admin', { keyPath: 'username' });
       }
@@ -34,6 +33,10 @@ function initDB() {
     request.onerror = (e) => reject('IndexedDB Error: ' + e.target.error);
   });
 }
+
+// ==========================================
+// USER ADMIN OFFLINE FUNCTIONS
+// ==========================================
 
 // Simpan Cache User Admin ke HP
 async function saveUserAdminToLocal(dataArray) {
@@ -86,6 +89,10 @@ async function loginAdminLocal(username, passwordPlain) {
   }
 }
 
+// ==========================================
+// PELANGGAN OFFLINE FUNCTIONS
+// ==========================================
+
 // Simpan/Cache daftar pelanggan ke IndexedDB saat online
 async function savePelangganToLocal(dataArray) {
   try {
@@ -131,7 +138,7 @@ async function getPelangganLocal(id, hp) {
             }
           });
         } else {
-          resolve({ success: false, message: "Data tidak ditemukan secara offline! Pastikan pernah login saat online." });
+          resolve({ success: false, message: "Data tidak ditemukan secara offline! Pastikan pernah tersambung internet." });
         }
       };
 
@@ -141,6 +148,28 @@ async function getPelangganLocal(id, hp) {
     return { success: false, message: "IndexedDB error: " + err.message };
   }
 }
+
+// Ambil seluruh daftar pelanggan dari IndexedDB untuk pencarian Kasir Offline
+async function getAllPelangganLocal() {
+  try {
+    const db = await initDB();
+    return new Promise((resolve) => {
+      const tx = db.transaction('pelanggan', 'readonly');
+      const store = tx.objectStore('pelanggan');
+      const req = store.getAll();
+
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => resolve([]);
+    });
+  } catch (err) {
+    console.error("Gagal mengambil pelanggan lokal:", err);
+    return [];
+  }
+}
+
+// ==========================================
+// TRANSAKSI OFFLINE FUNCTIONS
+// ==========================================
 
 // Simpan transaksi pending saat offline
 async function savePendingTransaksi(payload) {
@@ -181,20 +210,18 @@ async function removePendingTransaksiFromLocal(idTemp) {
     req.onerror = () => resolve(false);
   });
 }
-// Ambil seluruh daftar pelanggan dari IndexedDB untuk pencarian Kasir Offline
-async function getAllPelangganLocal() {
-  try {
-    const db = await initDB();
-    return new Promise((resolve) => {
-      const tx = db.transaction('pelanggan', 'readonly');
-      const store = tx.objectStore('pelanggan');
-      const req = store.getAll();
 
-      req.onsuccess = () => resolve(req.result || []);
-      req.onerror = () => resolve([]);
-    });
-  } catch (err) {
-    console.error("Gagal mengambil pelanggan lokal:", err);
-    return [];
+// ==========================================
+// HELPER FUNCTIONS
+// ==========================================
+
+// Function untuk enkripsi SHA-256 pada Login Admin Offline
+function sha256(input) {
+  async function hashMessage(message) {
+    const msgUint8 = new TextEncoder().encode(message);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
   }
+  return hashMessage(input);
 }
