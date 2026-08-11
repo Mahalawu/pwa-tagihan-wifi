@@ -17,16 +17,12 @@ document.addEventListener("DOMContentLoaded", function() {
     loadRandomQuote();
     loadPaketData();
     loadPaketDropdown();
-
-    // SINKRONISASI AWAL (PRE-CACHE FOR OFFLINE LOGIN)
     if (navigator.onLine) {
         apiCall("getDaftarPelanggan").then(res => {
-            console.log("✅ Database pelanggan ter-cache di IndexedDB!");
-        }).catch(err => console.warn("Gagal cache pelanggan:", err));
-
-        apiCall("getDaftarUser").then(res => {
-            console.log("✅ Database user admin ter-cache di IndexedDB!");
-        }).catch(err => console.warn("Gagal cache user admin:", err));
+            console.log("✅ Database pelanggan berhasil di-cache ke HP untuk Login Offline!");
+        }).catch(err => {
+            console.warn("Gagal pre-cache database pelanggan:", err);
+        });
     }
 
     console.log("Inisialisasi selesai!");
@@ -2105,4 +2101,9 @@ function formatBulanIndo(teksBulanTahun) {
     }
   });
   return teksBulanTahun;
+}
+// Di dalam document.addEventListener("DOMContentLoaded", ...) pada script.js:
+if (navigator.onLine) {
+    apiCall("getDaftarPelanggan");
+    apiCall("getDaftarUser"); // Pre-cache data petugas admin untuk login offline
 }
