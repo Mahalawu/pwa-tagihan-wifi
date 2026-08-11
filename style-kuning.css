@@ -1,4 +1,5 @@
-<style>
+/* File: style-kuning.css */
+
 body {
     font-family: 'Plus Jakarta Sans', sans-serif;
     background-color: #fffbeb;
@@ -217,10 +218,6 @@ body {
     color: #b45309 !important;
 }
 
-/* ======================================== */
-/* RESPONSIVE INVOICE */
-/* ======================================== */
-
 #area-cetak-invoice {
     font-family: 'Courier New', monospace;
 }
@@ -242,7 +239,6 @@ body {
     padding: 4px 0;
 }
 
-/* Ukuran mobile */
 @media (max-width: 480px) {
     #area-cetak-invoice {
         padding: 15px !important;
@@ -258,10 +254,6 @@ body {
     }
 }
 
-/* ======================================== */
-/* ADMIN TAB CONTENT */
-/* ======================================== */
-
 .admin-tab-content {
     display: none !important;
 }
@@ -274,10 +266,6 @@ body {
     display: none !important;
 }
 
-/* ======================================== */
-/* AKSES FORM PENGELUARAN */
-/* ======================================== */
-
 .hide-for-non-superadmin {
     display: none !important;
 }
@@ -285,10 +273,6 @@ body {
 .show-for-superadmin {
     display: block !important;
 }
-
-/* ======================================== */
-/* PRINT STYLES - SATU HALAMAN */
-/* ======================================== */
 
 @media print {
     body * {
@@ -366,10 +350,6 @@ body {
     }
 }
 
-/* ======================================== */
-/* TAMBAHAN ELEMEN KUNING */
-/* ======================================== */
-
 .badge-kuning {
     background-color: #f59e0b;
     color: white;
@@ -441,4 +421,3 @@ body {
     background-color: #f59e0b;
     border-radius: 10px;
 }
-</style>
