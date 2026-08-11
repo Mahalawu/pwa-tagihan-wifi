@@ -21,9 +21,6 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 // ========================================
-// PAKET FUNCTIONS
-// ========================================
-// ========================================
 // PAKET FUNCTIONS (FIXED)
 // ========================================
 async function loadPaketData() {
@@ -71,7 +68,6 @@ async function loadPaketDropdown() {
         console.error("Error loading paket dropdown:", err);
     }
 }
-
 // ========================================
 // NAVIGATION FUNCTIONS
 // ========================================
