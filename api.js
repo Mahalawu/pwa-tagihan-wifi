@@ -1,6 +1,6 @@
 // File: api.js - Smart Switch (Online / Offline)
 
-const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzWfqD0Cxwsubj36faIwNodMxCwnaI44S5e0C0Ax5W8xmWmlpMVXH4k8fVZWG69Evqk/exec";
+const GAS_API_URL = "https://script.google.com/macros/s/AKfycbx...MASUKKAN_URL_WEB_APP_ANDA_DISINI.../exec";
 
 async function apiCall(action, payload = {}) {
   // ==========================================
@@ -19,8 +19,8 @@ async function apiCall(action, payload = {}) {
 
       const data = await response.json();
 
-      // Cache otomatis daftar pelanggan setiap kali mengambil data
-      if ((action === "getDaftarPelanggan") && data.success && Array.isArray(data.data)) {
+      // Cache otomatis daftar pelanggan ke HP setiap kali sukses fetch
+      if (action === "getDaftarPelanggan" && data.success && Array.isArray(data.data)) {
         savePelangganToLocal(data.data);
       }
 
@@ -35,10 +35,22 @@ async function apiCall(action, payload = {}) {
   // ==========================================
   console.log(`[Offline Engine] Memproses action: ${action}`);
 
+  // A. Ambil semua pelanggan dari IndexedDB (Dapat digunakan oleh Kasir Offline)
+  if (action === "getDaftarPelanggan") {
+    const localData = await getAllPelangganLocal();
+    return {
+      success: true,
+      data: localData,
+      message: "Data pelanggan dimuat dari penyimpanan lokal HP."
+    };
+  }
+
+  // B. Login Pelanggan Offline
   if (action === "loginPelanggan") {
     return await getPelangganLocal(payload.idPelanggan, payload.noHp);
   }
 
+  // C. Simpan Transaksi Offline
   if (action === "simpanTransaksiBaru") {
     await savePendingTransaksi(payload);
     const now = new Date();
@@ -52,6 +64,7 @@ async function apiCall(action, payload = {}) {
     };
   }
 
+  // D. Random Quote Offline
   if (action === "getRandomQuote") {
     return {
       success: true,
@@ -80,7 +93,6 @@ window.addEventListener('online', async () => {
         delete tx.idTemp;
         delete tx.created_at;
 
-        // Kirim transaksi ke GAS
         const res = await fetch(GAS_API_URL, {
           method: "POST",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -97,7 +109,6 @@ window.addEventListener('online', async () => {
 
       if (successCount > 0) {
         alert(`✅ ${successCount} Transaksi Offline berhasil disinkronkan ke Google Sheets!`);
-        // Refresh tabel jika pengguna berada di tab riwayat/dashboard
         if (typeof muatRiwayatTransaksi === 'function') muatRiwayatTransaksi();
         if (typeof muatDashboard === 'function') muatDashboard();
       }
