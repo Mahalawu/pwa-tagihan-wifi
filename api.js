@@ -87,3 +87,18 @@ async function apiCall(action, payload = {}) {
 
   throw new Error("Mode Offline: Fitur ini memerlukan koneksi internet aktif.");
 }
+// Di dalam fungsi apiCall() pada api.js:
+
+// 1. Saat ONLINE: Cache otomatis data user admin
+if (action === "getDaftarUser" && data.success && Array.isArray(data.data)) {
+  if (typeof saveUserAdminToLocal === "function") {
+    saveUserAdminToLocal(data.data);
+  }
+}
+
+// 2. Saat OFFLINE Fallback:
+if (action === "loginAdmin") {
+  if (typeof loginAdminLocal === "function") {
+    return await loginAdminLocal(payload.username, payload.password);
+  }
+}
