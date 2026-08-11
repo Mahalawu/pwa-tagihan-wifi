@@ -2102,8 +2102,3 @@ function formatBulanIndo(teksBulanTahun) {
   });
   return teksBulanTahun;
 }
-// Di dalam document.addEventListener("DOMContentLoaded", ...) pada script.js:
-if (navigator.onLine) {
-    apiCall("getDaftarPelanggan");
-    apiCall("getDaftarUser"); // Pre-cache data petugas admin untuk login offline
-}
