@@ -3,7 +3,9 @@
 const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzWfqD0Cxwsubj36faIwNodMxCwnaI44S5e0C0Ax5W8xmWmlpMVXH4k8fVZWG69Evqk/exec";
 
 async function apiCall(action, payload = {}) {
+  // ==========================================
   // 1. CEK STATUS KONEKSI INTERNET BROWSER
+  // ==========================================
   if (navigator.onLine) {
     try {
       const response = await fetch(GAS_API_URL, {
@@ -19,7 +21,7 @@ async function apiCall(action, payload = {}) {
 
       const data = await response.json();
 
-      // Sinkronkan cache pelanggan otomatis ke HP jika berhasil mengambil daftar pelanggan
+      // Sinkronkan cache pelanggan otomatis jika berhasil
       if (action === "getDaftarPelanggan" && data.success && Array.isArray(data.data)) {
         if (typeof savePelangganToLocal === "function") {
           savePelangganToLocal(data.data);
@@ -46,7 +48,9 @@ async function apiCall(action, payload = {}) {
     }
   }
 
+  // ==========================================
   // 2. JIKA DALAM MODE OFFLINE (Sinyal Mati/Airplane Mode)
+  // ==========================================
   console.log(`[Offline Engine Active] Memproses action: ${action}`);
 
   if (action === "getDaftarPelanggan") {
@@ -55,7 +59,7 @@ async function apiCall(action, payload = {}) {
       return {
         success: true,
         data: localData,
-        message: "Data pelanggan dimuat dari penyimpanan lokal HP."
+        message: "Data pelanggan dimuat dari penyimpanan lokal HP/Laptop."
       };
     }
   }
@@ -82,7 +86,7 @@ async function apiCall(action, payload = {}) {
         success: true,
         idTransaksi: "OFFLINE-" + stringTgl + "-" + Math.floor(1000 + Math.random() * 9000),
         tglCetak: now.toLocaleDateString('id-ID') + " " + now.toLocaleTimeString('id-ID'),
-        message: "Transaksi tersimpan di HP! Akan disinkronkan otomatis saat ada internet."
+        message: "Transaksi tersimpan di perangkat! Akan disinkronkan otomatis saat ada internet."
       };
     }
   }
@@ -95,9 +99,11 @@ async function apiCall(action, payload = {}) {
   }
 
   throw new Error("Mode Offline: Fitur ini memerlukan koneksi internet aktif.");
-}
+} // <--- FUNGSI apiCall SELESAI DI SINI!
 
-// 3. AUTO-SYNC ENGINE Saat Internet Menyala Kembali
+// ==========================================
+// 3. AUTO-SYNC ENGINE (DI LUAR FUNGSI apiCall)
+// ==========================================
 window.addEventListener('online', async () => {
   console.log("🌐 Internet terhubung kembali! Memeriksa antrean transaksi offline...");
   
