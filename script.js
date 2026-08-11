@@ -17,6 +17,14 @@ document.addEventListener("DOMContentLoaded", function() {
     loadRandomQuote();
     loadPaketData();
     loadPaketDropdown();
+    if (navigator.onLine) {
+        apiCall("getDaftarPelanggan").then(res => {
+            console.log("✅ Database pelanggan berhasil di-cache ke HP untuk Login Offline!");
+        }).catch(err => {
+            console.warn("Gagal pre-cache database pelanggan:", err);
+        });
+    }
+
     console.log("Inisialisasi selesai!");
 });
 
