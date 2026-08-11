@@ -128,3 +128,20 @@ async function removePendingTransaksiFromLocal(idTemp) {
     req.onerror = () => resolve(false);
   });
 }
+// Ambil seluruh daftar pelanggan dari IndexedDB untuk pencarian Kasir Offline
+async function getAllPelangganLocal() {
+  try {
+    const db = await initDB();
+    return new Promise((resolve) => {
+      const tx = db.transaction('pelanggan', 'readonly');
+      const store = tx.objectStore('pelanggan');
+      const req = store.getAll();
+
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => resolve([]);
+    });
+  } catch (err) {
+    console.error("Gagal mengambil pelanggan lokal:", err);
+    return [];
+  }
+}
