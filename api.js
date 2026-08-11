@@ -1,7 +1,6 @@
 // File: api.js - Smart Switch (Online / Offline)
 
 const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzWfqD0Cxwsubj36faIwNodMxCwnaI44S5e0C0Ax5W8xmWmlpMVXH4k8fVZWG69Evqk/exec";
-// File: api.js - Perbaikan Deteksi Online / Offline
 
 async function apiCall(action, payload = {}) {
   // 1. CEK STATUS KONEKSI INTERNET BROWSER
@@ -9,7 +8,6 @@ async function apiCall(action, payload = {}) {
     try {
       const response = await fetch(GAS_API_URL, {
         method: "POST",
-        // Menggunakan text/plain agar tidak memicu preflight request CORS yang diblokir oleh GAS
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({ action: action, data: payload }),
         redirect: "follow"
@@ -28,22 +26,27 @@ async function apiCall(action, payload = {}) {
         }
       }
 
+      // Sinkronkan cache user admin otomatis
+      if (action === "getDaftarUser" && data.success && Array.isArray(data.data)) {
+        if (typeof saveUserAdminToLocal === "function") {
+          saveUserAdminToLocal(data.data);
+        }
+      }
+
       return data;
 
     } catch (err) {
       console.error(`[Fetch Error] Gagal berkomunikasi dengan GAS untuk action '${action}':`, err);
       
-      // Jika memang benar-benar offline (jaringan terputus di tengah jalan)
       if (!navigator.onLine) {
         console.warn("Koneksi terputus, mengalihkan ke Offline Fallback Engine...");
       } else {
-        // Jika internet aktif tapi GAS membalas error, lemparkan pesan error asli agar tidak menyamar jadi 'Mode Offline'
         throw new Error(`Gagal terhubung ke Server GAS (${err.message}). Pastikan URL GAS sudah benar dan dipublikasikan sebagai 'Anyone'.`);
       }
     }
   }
 
-  // 2. JIKA HP MEMANG DALAM MOODE OFFLINE (Sinyal Mati/Airplane Mode)
+  // 2. JIKA DALAM MODE OFFLINE (Sinyal Mati/Airplane Mode)
   console.log(`[Offline Engine Active] Memproses action: ${action}`);
 
   if (action === "getDaftarPelanggan") {
@@ -60,6 +63,12 @@ async function apiCall(action, payload = {}) {
   if (action === "loginPelanggan") {
     if (typeof getPelangganLocal === "function") {
       return await getPelangganLocal(payload.idPelanggan, payload.noHp);
+    }
+  }
+
+  if (action === "loginAdmin") {
+    if (typeof loginAdminLocal === "function") {
+      return await loginAdminLocal(payload.username, payload.password);
     }
   }
 
@@ -87,18 +96,46 @@ async function apiCall(action, payload = {}) {
 
   throw new Error("Mode Offline: Fitur ini memerlukan koneksi internet aktif.");
 }
-// Di dalam fungsi apiCall() pada api.js:
 
-// 1. Saat ONLINE: Cache otomatis data user admin
-if (action === "getDaftarUser" && data.success && Array.isArray(data.data)) {
-  if (typeof saveUserAdminToLocal === "function") {
-    saveUserAdminToLocal(data.data);
-  }
-}
+// 3. AUTO-SYNC ENGINE Saat Internet Menyala Kembali
+window.addEventListener('online', async () => {
+  console.log("🌐 Internet terhubung kembali! Memeriksa antrean transaksi offline...");
+  
+  try {
+    if (typeof getPendingTransaksiFromLocal === "function") {
+      const pendingList = await getPendingTransaksiFromLocal();
+      
+      if (pendingList && pendingList.length > 0) {
+        console.log(`Menemukan ${pendingList.length} transaksi offline. Mengunggah ke Google Sheets...`);
+        let successCount = 0;
 
-// 2. Saat OFFLINE Fallback:
-if (action === "loginAdmin") {
-  if (typeof loginAdminLocal === "function") {
-    return await loginAdminLocal(payload.username, payload.password);
+        for (const tx of pendingList) {
+          const idTemp = tx.idTemp;
+          delete tx.idTemp;
+          delete tx.created_at;
+
+          const res = await fetch(GAS_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ action: "simpanTransaksiBaru", data: tx }),
+            redirect: "follow"
+          });
+
+          const result = await res.json();
+          if (result.success) {
+            await removePendingTransaksiFromLocal(idTemp);
+            successCount++;
+          }
+        }
+
+        if (successCount > 0) {
+          alert(`✅ ${successCount} Transaksi Offline berhasil disinkronkan ke Google Sheets!`);
+          if (typeof muatRiwayatTransaksi === 'function') muatRiwayatTransaksi();
+          if (typeof muatDashboard === 'function') muatDashboard();
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Auto-sync error:", err);
   }
-}
+});
