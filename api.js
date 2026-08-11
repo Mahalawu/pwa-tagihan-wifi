@@ -1,7 +1,7 @@
 // File: api.js
 
 // URL Web App GAS hasil deploy
-const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzucL6tBu0SxekUtDHQmqRJS4UTVxesBFyZrXGZBWHUunUDcTovLb6k2h48A015Bu0C/exec";
+const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzWfqD0Cxwsubj36faIwNodMxCwnaI44S5e0C0Ax5W8xmWmlpMVXH4k8fVZWG69Evqk/exec";
 
 /**
  * Client API serbaguna untuk berkomunikasi dengan Google Apps Script
