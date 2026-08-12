@@ -465,21 +465,22 @@ body {
     transform: translateY(0);
 }
 
-/* 3. Tombol Logout Panel Admin */
+/* Tombol Logout Elegan & Harmonis */
 .btn-logout-wifian {
-    background-color: #fef2f2;
-    color: #dc2626 !important;
-    border: 1px solid #fca5a5;
+    background-color: #eff6ff;
+    color: #1e3a8a !important;
+    border: 1px solid #bfdbfe;
     border-radius: 8px;
+    padding: 5px 12px;
     font-weight: 600;
     transition: all 0.3s ease;
 }
 
 .btn-logout-wifian:hover {
-    background-color: #dc2626;
+    background-color: #ef4444;
     color: #ffffff !important;
-    border-color: #dc2626;
-    box-shadow: 0 4px 10px rgba(220, 38, 38, 0.2);
+    border-color: #ef4444;
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.25);
 }
 
 /* 5. Tombol Simpan & Bayar Sekarang Kasir */
