@@ -69,16 +69,18 @@
                 <h5 class="fw-bold text-center mb-3">Login Pelanggan</h5>
                 <div class="mb-3"><label class="form-label small fw-medium">ID Pelanggan</label><input type="text" id="login-id" class="form-control" placeholder="WF-0001"></div>
                 <div class="mb-4"><label class="form-label small fw-medium">No. HP Terdaftar</label><input type="text" id="login-hp" class="form-control" placeholder="08xxxx"></div>
-                <button class="btn btn-warning w-100 py-2.5 fw-bold text-white" style="border-radius: 10px; background-color: #dd6b20; border:none;" onclick="prosesLoginPelanggan()"><i class="fa-solid fa-lock me-2"></i>Masuk</button>
+                <button class="btn btn-primary-wifian w-100 py-2.5 fw-bold text-white" onclick="prosesLoginPelanggan()">
+    <i class="fa-solid fa-right-to-bracket me-2"></i>Masuk
+</button>
                 <div id="login-error" class="text-danger mt-2 small text-center fw-medium"></div>
             </div>
         </div>
 
         <!-- ===== SECTION LOGIN ADMIN ===== -->
 <div id="section-login-admin" class="app-section d-none mx-auto" style="max-width: 400px;">
-    <div class="card p-4 shadow border-0" style="border-radius: 20px; border-top: 5px solid #dd6b20;">
+    <div class="card p-4 shadow border-0" style="border-radius: 20px; border-top: 5px solid #1e3a8a;">
         <h5 class="fw-bold text-center text-dark mb-3">
-            <i class="fa-solid fa-lock me-2 text-warning"></i>Login Otorisasi
+            <i class="fa-solid fa-shield-halved me-2 text-primary"></i>Login Otorisasi
         </h5>
         <div class="mb-3">
             <label class="form-label small fw-medium">Username</label>
@@ -88,10 +90,8 @@
             <label class="form-label small fw-medium">Password</label>
             <input type="password" id="admin-pass" class="form-control">
         </div>
-        <button class="btn btn-warning w-100 py-2.5 fw-bold text-white" 
-                style="border-radius: 10px; background-color: #dd6b20; border:none;" 
-                onclick="prosesLoginAdmin()">
-            <i class="fa-solid fa-lock me-2"></i>Masuk
+        <button class="btn btn-primary-wifian w-100 py-2.5 fw-bold text-white" onclick="prosesLoginAdmin()">
+            <i class="fa-solid fa-right-to-bracket me-2"></i>Masuk
         </button>
         <div id="admin-login-error" class="text-danger mt-2 small text-center fw-medium"></div>
     </div>
@@ -151,9 +151,9 @@
                         <h5 class="fw-bold text-dark m-0">Panel Kontrol Manajemen</h5>
                         <small class="text-muted">Petugas: <span id="adm-nama-display" class="fw-bold text-primary"></span> (<span id="adm-level-display" class="badge bg-secondary"></span>)</small>
                     </div>
-                    <button class="btn btn-outline-danger btn-sm mt-2 mt-sm-0" onclick="logoutAdmin()">
-                        <i class="fa-solid fa-power-off me-1"></i>Logout
-                    </button>
+                    <button class="btn btn-logout-wifian btn-sm mt-2 mt-sm-0" onclick="logoutAdmin()">
+    <i class="fa-solid fa-power-off me-1"></i>Logout
+</button>
                 </div>
 
                 <div class="d-flex gap-2 mb-4 flex-wrap" id="admin-nav-container">
@@ -244,9 +244,9 @@
                         <option value="QRIS">QRIS / Dompet Digital</option>
                     </select>
                 </div>
-                <button class="btn btn-simpan btn-sm w-100 py-2 fw-bold" id="btn-simpan-tx" onclick="prosesSimpanTransaksi()" disabled>
-                    <i class="fa-solid fa-check-circle me-2"></i>Simpan & Bayar Sekarang
-                </button>
+                <button class="btn btn-simpan btn-sm w-100 py-2.5 fw-bold" id="btn-simpan-tx" onclick="prosesSimpanTransaksi()" disabled>
+    <i class="fa-solid fa-circle-check me-2"></i>Simpan & Bayar Sekarang
+</button>
                 <div id="kasir-notif-simpan" class="text-center mt-2 fw-bold small"></div>
             </div>
         </div>
@@ -527,12 +527,12 @@
             </div>
             <div class="col-md-1 d-flex align-items-end">
                 <!-- ===== TOMBOL SIMPAN - HANYA UNTUK SUPERADMIN ===== -->
-                <button type="button" class="btn btn-simpan btn-sm w-100" 
-                        id="btn-tambah-pengeluaran"
-                        onclick="tambahPengeluaran()" 
-                        title="Simpan Pengeluaran">
-                    <i class="fa-solid fa-save"></i>
-                </button>
+                <button type="button" class="btn btn-primary-wifian btn-sm w-100 py-2" 
+        id="btn-tambah-pengeluaran"
+        onclick="tambahPengeluaran()" 
+        title="Simpan Pengeluaran">
+    <i class="fa-solid fa-floppy-disk me-1"></i>Simpan
+</button>
             </div>
         </form>
         <div id="pengeluaran-notif" class="small mt-2 fw-medium"></div>
