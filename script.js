@@ -2106,3 +2106,18 @@ function formatBulanIndo(teksBulanTahun) {
   });
   return teksBulanTahun;
 }
+async function fetchWithRetry(url, options, retries = 3, backoff = 1000) {
+  try {
+    const response = await fetch(url, options);
+    if (!response.ok) throw new Error("Response status " + response.status);
+    return await response.json();
+  } catch (err) {
+    if (retries > 0) {
+      console.warn(`Server GAS lagi cold-start, mencoba ulang... Sisa percobaan: ${retries}`);
+      await new Promise(res => setTimeout(res, backoff));
+      return fetchWithRetry(url, options, retries - 1, backoff * 1.5);
+    } else {
+      throw err;
+    }
+  }
+}
