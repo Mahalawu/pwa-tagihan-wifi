@@ -440,3 +440,70 @@ body {
     background-color: #3b82f6;
     border-radius: 10px;
 }
+/* ======================================== */
+/* KLAS TOMBOL HARMONIS WIFIAN SOLUTION     */
+/* ======================================== */
+
+/* 1 & 2 & 4. Tombol Utama (Login & Simpan Pengeluaran) */
+.btn-primary-wifian {
+    background: linear-gradient(135deg, #1e3a8a, #2563eb);
+    color: #ffffff !important;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.btn-primary-wifian:hover {
+    background: linear-gradient(135deg, #1d4ed8, #1e3a8a);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(30, 58, 138, 0.35);
+}
+
+.btn-primary-wifian:active {
+    transform: translateY(0);
+}
+
+/* 3. Tombol Logout Panel Admin */
+.btn-logout-wifian {
+    background-color: #fef2f2;
+    color: #dc2626 !important;
+    border: 1px solid #fca5a5;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-logout-wifian:hover {
+    background-color: #dc2626;
+    color: #ffffff !important;
+    border-color: #dc2626;
+    box-shadow: 0 4px 10px rgba(220, 38, 38, 0.2);
+}
+
+/* 5. Tombol Simpan & Bayar Sekarang Kasir */
+.btn-simpan {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+    color: #ffffff !important;
+    font-weight: 700;
+    border: none !important;
+    border-radius: 10px;
+    padding: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+}
+
+.btn-simpan:hover:not(:disabled) {
+    background: linear-gradient(135deg, #1e3a8a, #2563eb) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(30, 58, 138, 0.4);
+}
+
+.btn-simpan:disabled {
+    background: #cbd5e1 !important;
+    color: #94a3b8 !important;
+    box-shadow: none !important;
+    cursor: not-allowed;
+    transform: none;
+}
