@@ -2,11 +2,20 @@ const CACHE_NAME = 'pwa-wifi-billing-v1';
 const urlsToCache = [
   './',
   './index.html',
-  './style-kuning.css',
+  './style.css',
   './api.js',
   './script.js',
-  './manifest.json'
+  './manifest.json',
+  './assets/qrcode-client.png'
 ];
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS_TO_CACHE);
+    })
+  );
+});
 
 self.addEventListener('install', event => {
   event.waitUntil(
