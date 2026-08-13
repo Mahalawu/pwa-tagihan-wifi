@@ -2144,3 +2144,6 @@ function formatTanggalRingkas(tglStr) {
     
     return dd + '/' + mm + '/' + yyyy + ' ' + hh + ':' + min;
 }
+if (window.location.hash === '#login-pelanggan') {
+    switchTab('login-pelanggan');
+}
