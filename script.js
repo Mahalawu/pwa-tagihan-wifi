@@ -439,11 +439,6 @@ async function prosesSimpanTransaksi() {
             document.getElementById('p-periode').innerText = formatBulanIndo(periodeBayarFormatted || "-");
             document.getElementById('p-adm').innerText = LOGGED_IN_ADMIN;
             document.getElementById('p-total').innerText = Number(jumlah).toLocaleString('id-ID');
-            
-            var targetUrl = "https://sites.google.com/view/wifiansolution/billing";
-            var qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + encodeURIComponent(targetUrl);
-            document.getElementById('p-qrcode').src = qrUrl;
-
             var invoiceEl = document.getElementById('area-cetak-invoice');
             invoiceEl.style.display = 'block';
             invoiceEl.style.position = 'fixed';
@@ -2062,11 +2057,6 @@ async function cetakUlangInvoice(idTx) {
             document.getElementById('p-periode').innerText = formatBulanIndo(tx.bulan || "-");
             document.getElementById('p-adm').innerText = tx.keterangan || "Admin";
             document.getElementById('p-total').innerText = Number(tx.jumlah).toLocaleString('id-ID');
-            
-            var targetUrl = "https://sites.google.com/view/wifiansolution/billing";
-            var qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + encodeURIComponent(targetUrl);
-            document.getElementById('p-qrcode').src = qrUrl;
-            
             var invoiceEl = document.getElementById('area-cetak-invoice');
             invoiceEl.style.display = 'block';
             invoiceEl.style.position = 'fixed';
