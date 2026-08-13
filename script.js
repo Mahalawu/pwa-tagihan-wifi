@@ -599,7 +599,7 @@ function renderTabelTransaksi() {
                 <td><span class="badge bg-light text-dark border">${r.idPlg}</span></td>
                 <td>${r.nama}</td>
                 <td><span class="badge bg-info-subtle text-info border border-info">${r.paket}</span></td>
-                <td>${r.tanggal}</td>
+                <td>${formatTanggalRingkas(r.tanggal)}</td>
                 <td class="text-success fw-bold">Rp ${Number(r.jumlah).toLocaleString('id-ID')}</td>
                 <td><span class="badge bg-secondary-subtle text-secondary border border-secondary">${r.bulan}</span></td>
                 <td><span class="badge ${metodeBadge}">${r.metode}</span></td>
