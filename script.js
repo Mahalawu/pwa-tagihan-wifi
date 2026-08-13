@@ -2050,13 +2050,23 @@ async function cetakUlangInvoice(idTx) {
         if (res.success) {
             var tx = res.data;
             document.getElementById('p-idtx').innerText = tx.idTx;
-            document.getElementById('p-tgl').innerText = tx.tanggal;
+            
+            // ===== PERBAIKAN FORMAT TANGGAL INVOICE =====
+            document.getElementById('p-tgl').innerText = formatTanggalRingkas(tx.tanggal);
+            
             document.getElementById('p-idplg').innerText = tx.idPlg;
             document.getElementById('p-nama').innerText = tx.nama;
             document.getElementById('p-paket').innerText = tx.paket;
             document.getElementById('p-periode').innerText = formatBulanIndo(tx.bulan || "-");
             document.getElementById('p-adm').innerText = tx.keterangan || "Admin";
             document.getElementById('p-total').innerText = Number(tx.jumlah).toLocaleString('id-ID');
+            
+            // Set QR Code
+            var qrImg = document.getElementById('p-qrcode');
+            if (qrImg) {
+                qrImg.src = "assets/qrcode-client.png";
+            }
+            
             var invoiceEl = document.getElementById('area-cetak-invoice');
             invoiceEl.style.display = 'block';
             invoiceEl.style.position = 'fixed';
@@ -2114,16 +2124,23 @@ async function fetchWithRetry(url, options, retries = 3, backoff = 1000) {
 // HELPER FORMAT TANGGAL RINGKAS (DD/MM/YYYY)
 function formatTanggalRingkas(tglStr) {
     if (!tglStr) return "-";
-    // Jika sudah berformat dd/mm/yyyy
-    if (typeof tglStr === 'string' && tglStr.includes('/') && tglStr.length <= 10) {
+    
+    var d = new Date(tglStr);
+    // Jika tglStr bukan format Date standar tapi sudah dd/mm/yyyy
+    if (isNaN(d.getTime())) {
         return tglStr;
     }
-    var d = new Date(tglStr);
-    if (isNaN(d.getTime())) return tglStr;
     
     var dd = String(d.getDate()).padStart(2, '0');
     var mm = String(d.getMonth() + 1).padStart(2, '0');
     var yyyy = d.getFullYear();
+    var hh = String(d.getHours()).padStart(2, '0');
+    var min = String(d.getMinutes()).padStart(2, '0');
     
-    return dd + '/' + mm + '/' + yyyy;
+    // Jika jam/menit bernilai 00:00, tampilkan tanggalnya saja
+    if (hh === '00' && min === '00') {
+        return dd + '/' + mm + '/' + yyyy;
+    }
+    
+    return dd + '/' + mm + '/' + yyyy + ' ' + hh + ':' + min;
 }
