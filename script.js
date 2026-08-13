@@ -2111,3 +2111,19 @@ async function fetchWithRetry(url, options, retries = 3, backoff = 1000) {
     }
   }
 }
+// HELPER FORMAT TANGGAL RINGKAS (DD/MM/YYYY)
+function formatTanggalRingkas(tglStr) {
+    if (!tglStr) return "-";
+    // Jika sudah berformat dd/mm/yyyy
+    if (typeof tglStr === 'string' && tglStr.includes('/') && tglStr.length <= 10) {
+        return tglStr;
+    }
+    var d = new Date(tglStr);
+    if (isNaN(d.getTime())) return tglStr;
+    
+    var dd = String(d.getDate()).padStart(2, '0');
+    var mm = String(d.getMonth() + 1).padStart(2, '0');
+    var yyyy = d.getFullYear();
+    
+    return dd + '/' + mm + '/' + yyyy;
+}
