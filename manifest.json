@@ -10,14 +10,14 @@
   "theme_color": "#1e3a8a",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/256/6532/6532060.png",
-      "sizes": "256x256",
+      "src": "https://mahalawu.github.io/pwa-tagihan-wifi/assets/logo.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
         {
-      "src": "https://cdn-icons-png.flaticon.com/256/6532/6532060.png",
-      "sizes": "256x256",
+      "src": "https://mahalawu.github.io/pwa-tagihan-wifi/assets/logo.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     }
