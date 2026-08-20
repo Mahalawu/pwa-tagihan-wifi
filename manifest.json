@@ -33,21 +33,21 @@
   "screenshots": [
     {
       "src": "https://mahalawu.github.io/wifiapp/assets/scr1.png",
-      "sizes": "1080x1920",
+      "sizes": "512x1052",
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Halaman Produk"
     },
     {
       "src": "https://mahalawu.github.io/wifiapp/assets/scr3.png",
-      "sizes": "1080x1920",
+      "sizes": "512x1052",
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Halaman Client Dalam"
     },
     {
     "src": "https://mahalawu.github.io/wifiapp/assets/scr3.png",
-      "sizes": "1080x1920",
+      "sizes": "512x1052",
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Halaman Admin Depan"
