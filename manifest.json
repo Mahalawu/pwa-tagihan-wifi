@@ -1,7 +1,7 @@
 {
   "id": "aplikasi-tagihan-wifi",
-  "name": "Aplikasi Tagihan WIFI",
-  "short_name": "Kasir Wifi",
+  "name": "Aplikasi Wifi",
+  "short_name": "App. Wifi",
   "start_url": "/wifiapp/",
   "scope": "/wifiapp/",
   "display": "standalone",
