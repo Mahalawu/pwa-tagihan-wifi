@@ -6,7 +6,7 @@
   "scope": "/pwa-tagihan-wifi/",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#f8fafc",
+  "background_color": "#1d4ed8",
   "theme_color": "#1e3a8a",
   "icons": [
     {
