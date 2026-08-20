@@ -11,13 +11,13 @@
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/256/6532/6532060.png",
-      "sizes": "512x512",
+      "sizes": "256x256",
       "type": "image/png",
       "purpose": "any"
     },
         {
       "src": "https://cdn-icons-png.flaticon.com/256/6532/6532060.png",
-      "sizes": "512x512",
+      "sizes": "256x256",
       "type": "image/png",
       "purpose": "maskable"
     }
