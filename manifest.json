@@ -11,5 +11,13 @@
       "sizes": "512x512",
       "type": "image/png"
     }
+  ],
+  "description": "Aplikasi untuk melakukan kasir dalam melakukan transaksi pembayaran dan pengelolaan laporan keuangan yang dilakukan oleh admin.",
+  "lang": "id",
+  "categories": [
+    "business",
+    "finance",
+    "network",
+    "networking"
   ]
 }
