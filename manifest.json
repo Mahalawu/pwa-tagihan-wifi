@@ -10,13 +10,13 @@
   "theme_color": "#1e3a8a",
   "icons": [
     {
-      "src": "https://mahalawu.github.io/pwa-tagihan-wifi/assets/logo.png",
+      "src": "https://mahalawu.github.io/wifiapp/assets/logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
         {
-      "src": "https://mahalawu.github.io/pwa-tagihan-wifi/assets/logo.png",
+      "src": "https://mahalawu.github.io/wifiapp/assets/logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
