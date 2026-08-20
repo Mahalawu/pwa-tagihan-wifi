@@ -1,15 +1,25 @@
 {
+  "id": "aplikasi-tagihan-wifi",
   "name": "Aplikasi Tagihan WIFI",
-  "short_name": "TagihanWIFI",
-  "start_url": "./index.html",
+  "short_name": "Kasir Wifi",
+  "start_url": "/pwa-tagihan-wifi/",
+  "scope": "/pwa-tagihan-wifi/",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#f8fafc",
   "theme_color": "#1e3a8a",
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/256/6532/6532060.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+        {
+      "src": "https://cdn-icons-png.flaticon.com/256/6532/6532060.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "description": "Aplikasi untuk melakukan kasir dalam melakukan transaksi pembayaran dan pengelolaan laporan keuangan yang dilakukan oleh admin.",
